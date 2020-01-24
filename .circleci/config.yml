@@ -1,0 +1,84 @@
+version: 2.1
+aliases:
+  - &container_config
+    docker:
+      - image: circleci/node:10.13.0
+    working_directory: /home/circleci/project
+
+  - &node_modules_cache_params
+    key: node_modules-{{ .Branch }}-{{ checksum "./package-lock.json" }}
+    paths:
+      - node_modules
+
+  - &show_information
+    name: Show system information.
+    command: |
+      echo "Node $(node -v)"
+      echo "Npm $(npm -v)"
+  - &restore_cache
+    name: Restore Cache.
+    <<: *node_modules_cache_params
+
+  - &npm_install
+    name: Set up to gas clasp environment.
+    command: npm install
+
+  - &save_cache
+    name: Saving Cache.
+    <<: *node_modules_cache_params
+
+  - &lint
+    name: Run Lint.
+    command: npm run lint
+
+  - &test
+    name: Run Test.
+    command: npm run test
+
+  - &build
+    name: Run webpack build.
+    command: npm run build
+
+  - &deploy
+    name: Deploy to GAS.
+    command: ./scripts/deploy-ci.sh
+
+jobs:
+  build:
+    <<: *container_config
+    steps:
+      - checkout
+      - run: *show_information
+      - restore_cache: *restore_cache
+      - run: *npm_install
+      - save_cache: *save_cache
+      - run: *lint
+      - run: *test
+      - run: *build
+  build_deploy:
+    <<: *container_config
+    steps:
+      - checkout
+      - run: *show_information
+      - restore_cache: *restore_cache
+      - run: *npm_install
+      - save_cache: *save_cache
+      - run: *lint
+      - run: *test
+      - run: *build
+      - run: *deploy
+
+workflows:
+  version: 2
+  build_workflow:
+    jobs:
+      - build:
+          filters:
+            branches:
+              ignore: master
+  build_deploy_workflow:
+    jobs:
+      - build_deploy:
+          filters:
+            branches:
+              only: master
