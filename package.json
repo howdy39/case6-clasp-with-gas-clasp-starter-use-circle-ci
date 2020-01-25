@@ -1,6 +1,6 @@
 {
   "name": "case6-clasp-with-gas-clasp-starter-use-circle-ci",
-  "description": "case4-clasp-with-gas-clasp-starter を Circle CI を使って PR マージ時にデプロイするようにしたバージョンです。",
+  "description": "case4-clasp-with-gas-clasp-starter を CircleCI を使って PR マージ時にデプロイするようにしたバージョンです。",
   "scripts": {
     "lint": "eslint --fix src/**/*.ts",
     "test": "jest",
